@@ -177,4 +177,4 @@ class VoiceUploadAPITests(APITestCase):
         self.assertEqual(handoff['status'], 'done')
         self.assertIn('segments', handoff)
         self.assertIn('asr_duration', handoff['segments'][0])
-
+        self.assertIn('retry_attempts', handoff['segments'][0])
