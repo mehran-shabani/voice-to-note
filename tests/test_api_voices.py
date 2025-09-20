@@ -13,10 +13,17 @@ from records.models import VoiceRecording, VoiceNote
 
 
 class VoiceUploadAPITests(APITestCase):
+class VoiceUploadAPITests(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.url = reverse('records:upload_voice')
+        self._tmp_media = tempfile.mkdtemp(prefix='test-media-')
+        self._override = override_settings(MEDIA_ROOT=self._tmp_media)
+        self._override.enable()
 
+    def tearDown(self):
+        self._override.disable()
+        shutil.rmtree(self._tmp_media, ignore_errors=True)
     def _make_audio(self, name='test.wav', content=b'abc', content_type='audio/wav', size=None):
         if size is not None:
             content = b'x' * size
