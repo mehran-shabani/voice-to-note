@@ -1,0 +1,50 @@
+name: voicenote
+description: VoiceNote - Record, Edit, and Upload voice notes
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State management
+  flutter_riverpod: ^2.4.9
+  
+  # Audio recording
+  record: ^5.0.4
+  
+  # Audio manipulation
+  ffmpeg_kit_flutter_audio: ^6.0.3
+  
+  # File operations
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  
+  # Permissions
+  permission_handler: ^11.1.0
+  
+  # HTTP networking
+  dio: ^5.4.0
+  
+  # Date formatting
+  intl: ^0.18.1
+  
+  # UUID generation
+  uuid: ^4.2.2
+  
+  # Audio waveform visualization
+  just_audio: ^0.9.36
+  
+  # UI components
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
