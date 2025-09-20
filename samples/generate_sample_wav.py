@@ -14,8 +14,10 @@ FREQUENCY_HZ = 440.0
 AMPLITUDE = 0.5
 
 def main():
-    os.makedirs(os.path.dirname(__file__), exist_ok=True)
-    path = os.path.join(os.path.dirname(__file__), 'sample_5s.wav')
+    base_dir = os.path.dirname(__file__)
+    out_dir = os.path.join(base_dir, 'out')
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, 'sample_5s.wav')
     total_frames = SAMPLE_RATE * DURATION_SEC
     with wave.open(path, 'w') as wf:
         wf.setnchannels(1)
