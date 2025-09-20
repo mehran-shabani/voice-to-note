@@ -214,10 +214,11 @@ class ServiceFunctionsTestCase(TestCase):
         self.assertIn("[SEGMENT FAILED]", merged)
         self.assertIn("This is the fourth segment", merged)
     
+    @patch('records.services.verify_ffmpeg_availability', return_value=True)
     @patch('records.services.transcribe_segment')
     @patch('records.services.split_to_segments')
     @patch('records.services.get_audio_duration')
-    def test_process_voice_recording_success(self, mock_duration, mock_split, mock_transcribe):
+    def test_process_voice_recording_success(self, mock_duration, mock_split, mock_transcribe, mock_ffmpeg):
         """Test successful processing of voice recording."""
         from records.services import process_voice_recording, store_voice_file
         
@@ -232,9 +233,21 @@ class ServiceFunctionsTestCase(TestCase):
         # Mock dependencies
         mock_duration.return_value = 150
         mock_split.return_value = [
-            ('/tmp/segment_000.mp3', 0, 150)
+            {
+                'path': '/tmp/segment_000.mp3',
+                'start_time': 0,
+                'end_time': 150,
+                'index': 0,
+                'ffmpeg_command': 'ffmpeg -i fake -ss 0 -t 150 ...',
+                'extraction_time': 0.01,
+            }
         ]
-        mock_transcribe.return_value = "This is the transcribed text."
+        mock_transcribe.return_value = ("This is the transcribed text.", {
+            'asr_duration': 0.02,
+            'retry_attempts': 0,
+            'model_used': 'whisper-1',
+            'base_url_used': 'https://api.openai.com/v1',
+        })
         
         # Mock file cleanup
         with patch('os.remove'):
@@ -255,8 +268,11 @@ class ServiceFunctionsTestCase(TestCase):
         note = notes.first()
         self.assertEqual(note.format, 'txt')
     
+    @patch('records.services.verify_ffmpeg_availability', return_value=True)
+    @patch('records.services.split_to_segments')
+    @patch('records.services.get_audio_duration')
     @patch('records.services.transcribe_segment')
-    def test_process_voice_recording_failure(self, mock_transcribe):
+    def test_process_voice_recording_failure(self, mock_transcribe, mock_duration, mock_split, mock_ffmpeg):
         """Test that processing failure updates status to failed."""
         from records.services import process_voice_recording, store_voice_file
         
@@ -268,7 +284,19 @@ class ServiceFunctionsTestCase(TestCase):
         )
         voice_recording = store_voice_file(uploaded_file)
         
-        # Make transcribe fail
+        # Mock dependencies
+        mock_duration.return_value = 10
+        mock_split.return_value = [
+            {
+                'path': '/tmp/segment_000.mp3',
+                'start_time': 0,
+                'end_time': 10,
+                'index': 0,
+                'ffmpeg_command': 'ffmpeg -i fake -ss 0 -t 10 ...',
+                'extraction_time': 0.01,
+            }
+        ]
+        # Make transcribe fail per segment
         mock_transcribe.side_effect = Exception("Transcription failed")
         
         # Process should raise exception
