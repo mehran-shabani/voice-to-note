@@ -136,11 +136,37 @@ MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
 # CORS configuration
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Open in development
-# In production, use:
-# CORS_ALLOWED_ORIGINS = ['https://your-app-domain.com']
+# Dev: open CORS when DEBUG=True; Prod: restrict via env CORS_ALLOWED_ORIGINS
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+_cors_allowed_origins_env = os.environ.get('CORS_ALLOWED_ORIGINS', '').strip()
+if _cors_allowed_origins_env:
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_allowed_origins_env.split(',') if o.strip()]
+    CORS_ALLOW_ALL_ORIGINS = False
 
 # Logging configuration
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+LOG_TO_FILE = os.environ.get('LOG_TO_FILE', 'False') == 'True'
+LOG_FILE_PATH = os.environ.get('LOG_FILE', str(BASE_DIR / 'logs' / 'app.log'))
+
+_handlers = {
+    'console': {
+        'class': 'logging.StreamHandler',
+        'formatter': 'verbose',
+    },
+}
+
+if LOG_TO_FILE:
+    os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
+    _handlers['file'] = {
+        'class': 'logging.handlers.RotatingFileHandler',
+        'filename': LOG_FILE_PATH,
+        'maxBytes': 5 * 1024 * 1024,
+        'backupCount': 3,
+        'formatter': 'verbose',
+    }
+
+_root_handlers = ['console'] + (['file'] if LOG_TO_FILE else [])
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -150,20 +176,15 @@ LOGGING = {
             'style': '{',
         },
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-        },
-    },
+    'handlers': _handlers,
     'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
+        'handlers': _root_handlers,
+        'level': LOG_LEVEL,
     },
     'loggers': {
         'records': {
-            'handlers': ['console'],
-            'level': 'INFO',
+            'handlers': _root_handlers,
+            'level': LOG_LEVEL,
             'propagate': False,
         },
     },
