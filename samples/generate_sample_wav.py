@@ -23,11 +23,12 @@ def main():
         wf.setnchannels(1)
         wf.setsampwidth(2)  # 16-bit
         wf.setframerate(SAMPLE_RATE)
+        frames = bytearray()
         for n in range(total_frames):
-            t = float(n) / SAMPLE_RATE
+            t = n / float(SAMPLE_RATE)
             sample = AMPLITUDE * math.sin(2.0 * math.pi * FREQUENCY_HZ * t)
-            val = int(sample * 32767.0)
-            wf.writeframes(struct.pack('<h', val))
+            frames += struct.pack('<h', int(sample * 32767.0))
+        wf.writeframes(frames)
     print(f"Wrote {path}")
 
 if __name__ == '__main__':
