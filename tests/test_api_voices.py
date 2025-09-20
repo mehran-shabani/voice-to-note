@@ -65,7 +65,7 @@ class VoiceUploadAPITests(APITestCase):
             response = self.client.post(self.url, {'audio': audio_file}, format='multipart')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn('Location', response)
+        self.assertTrue(response.has_header('Location'))
         # DB artifacts
         self.assertEqual(VoiceRecording.objects.count(), 1)
         voice = VoiceRecording.objects.first()
