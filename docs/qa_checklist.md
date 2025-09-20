@@ -89,6 +89,7 @@
 - [ ] With a recording available, tap "Upload" button
 - [ ] Verify upload progress bar appears
 - [ ] Verify percentage updates during upload
+- [ ] Verify success toast appears with status code
 - [ ] Verify "Upload successful! (201)" or "(200)" message
 
 ### 3.2 Upload Cancel
@@ -108,6 +109,12 @@
 - [ ] Verify app accepts 200 OK response
 - [ ] Test with invalid file format - verify 400 error handling
 - [ ] Test with oversized file - verify 413 error handling
+
+### 3.6 End-to-End Flow (Record → Cut → Undo → Upload)
+- [ ] Record ≤ 20s sample
+- [ ] Perform a cut (e.g., remove 2–4s)
+- [ ] Undo the cut and verify duration restored
+- [ ] Upload the file and verify success toast and Location header
 
 ### 3.5 Request Verification
 - [ ] Use network inspector/proxy to verify request
